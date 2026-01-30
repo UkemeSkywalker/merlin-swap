@@ -1,19 +1,17 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Token } from '@/types';
 import { Input } from '@/components/ui/Input';
-import { TokenSelector } from './TokenSelector';
 
 export interface TokenInputProps {
   label: 'From' | 'To';
   selectedToken: Token | null;
   amount: string;
   usdValue: string;
-  onTokenSelect: (token: Token) => void;
+  onTokenSelect: () => void;
   onAmountChange: (amount: string) => void;
   disabled?: boolean;
-  excludeToken?: Token | null;
 }
 
 export const TokenInput: React.FC<TokenInputProps> = ({
@@ -24,10 +22,7 @@ export const TokenInput: React.FC<TokenInputProps> = ({
   onTokenSelect,
   onAmountChange,
   disabled = false,
-  excludeToken,
 }) => {
-  const [isSelectorOpen, setIsSelectorOpen] = useState(false);
-
   return (
     <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-4">
       {/* Label */}
@@ -37,7 +32,7 @@ export const TokenInput: React.FC<TokenInputProps> = ({
       <div className="flex items-center gap-3">
         {/* Token Selector Button */}
         <button
-          onClick={() => setIsSelectorOpen(true)}
+          onClick={onTokenSelect}
           className="
             flex items-center gap-2 px-4 py-2 rounded-xl
             bg-white/10 hover:bg-white/20
@@ -88,15 +83,6 @@ export const TokenInput: React.FC<TokenInputProps> = ({
       <div className="text-right text-sm text-white/60 mt-2">
         {usdValue}
       </div>
-
-      {/* Token Selector Modal */}
-      <TokenSelector
-        isOpen={isSelectorOpen}
-        onClose={() => setIsSelectorOpen(false)}
-        onSelect={onTokenSelect}
-        selectedToken={selectedToken}
-        excludeToken={excludeToken}
-      />
     </div>
   );
 };

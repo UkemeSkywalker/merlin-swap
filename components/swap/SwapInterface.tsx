@@ -1,17 +1,23 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { TokenInput } from './TokenInput';
 import { SlippageControl } from './SlippageControl';
 import { useSwap } from '@/hooks/useSwap';
 import { Button } from '@/components/ui/Button';
 import { useWalletContext } from '@/contexts/WalletContext';
+import { Token } from '@/types';
+import { TokenSelector } from './TokenSelector';
 
 export interface SwapInterfaceProps {
   className?: string;
 }
 
+type TokenSelectorMode = 'from' | 'to' | null;
+
 export const SwapInterface: React.FC<SwapInterfaceProps> = ({ className }) => {
+  const [selectorMode, setSelectorMode] = useState<TokenSelectorMode>(null);
+  
   const {
     fromToken,
     toToken,
@@ -29,6 +35,15 @@ export const SwapInterface: React.FC<SwapInterfaceProps> = ({ className }) => {
   } = useSwap();
 
   const { walletState, connect } = useWalletContext();
+
+  const handleTokenSelect = (token: Token) => {
+    if (selectorMode === 'from') {
+      updateFromToken(token);
+    } else if (selectorMode === 'to') {
+      updateToToken(token);
+    }
+    setSelectorMode(null);
+  };
 
   const handleSwapClick = () => {
     if (!walletState.isConnected) {
@@ -62,9 +77,8 @@ export const SwapInterface: React.FC<SwapInterfaceProps> = ({ className }) => {
           selectedToken={fromToken}
           amount={fromAmount}
           usdValue={getFromUsdValue()}
-          onTokenSelect={updateFromToken}
+          onTokenSelect={() => setSelectorMode('from')}
           onAmountChange={updateFromAmount}
-          excludeToken={toToken}
         />
 
         {/* Swap Direction Arrow */}
@@ -107,10 +121,9 @@ export const SwapInterface: React.FC<SwapInterfaceProps> = ({ className }) => {
           selectedToken={toToken}
           amount={toAmount}
           usdValue={getToUsdValue()}
-          onTokenSelect={updateToToken}
+          onTokenSelect={() => setSelectorMode('to')}
           onAmountChange={updateFromAmount}
           disabled={true}
-          excludeToken={fromToken}
         />
 
         {/* Swap Button */}
@@ -150,6 +163,15 @@ export const SwapInterface: React.FC<SwapInterfaceProps> = ({ className }) => {
           </div>
         )}
       </div>
+
+      {/* Centralized Token Selector Modal */}
+      <TokenSelector
+        isOpen={selectorMode !== null}
+        onClose={() => setSelectorMode(null)}
+        onSelect={handleTokenSelect}
+        selectedToken={selectorMode === 'from' ? fromToken : toToken}
+        excludeToken={selectorMode === 'from' ? toToken : fromToken}
+      />
     </div>
   );
 };

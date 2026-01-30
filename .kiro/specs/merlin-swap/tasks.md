@@ -101,7 +101,7 @@ Run `npm run dev` - you'll see the main swap interface with token inputs, select
 
 ---
 
-- [ ] 5: Navigation, Wallet Connection, and Final Polish
+- [-] 5: Navigation, Wallet Connection, and Final Polish
 **Status:** Not Started
 
 **Description:**
