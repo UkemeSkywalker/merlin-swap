@@ -24,40 +24,46 @@ function generateMockAddress(): string {
 }
 
 export function WalletProvider({ children }: { children: React.ReactNode }) {
-  const [walletState, setWalletState] = useState<WalletState>({
-    isConnected: false,
-    address: null,
-    chainId: null,
-  });
-  const [isInitialized, setIsInitialized] = useState(false);
-
-  // Initialize wallet state from localStorage on client side only
-  useEffect(() => {
+  // Initialize wallet state from localStorage immediately
+  const [walletState, setWalletState] = useState<WalletState>(() => {
+    if (typeof window === 'undefined') {
+      return {
+        isConnected: false,
+        address: null,
+        chainId: null,
+      };
+    }
+    
     const stored = localStorage.getItem(WALLET_STORAGE_KEY);
     if (stored) {
       try {
         const parsed = JSON.parse(stored);
         if (parsed.isConnected && parsed.address) {
-          setWalletState(parsed);
+          return parsed;
         }
       } catch (error) {
         console.error('Failed to parse stored wallet state:', error);
         localStorage.removeItem(WALLET_STORAGE_KEY);
       }
     }
-    setIsInitialized(true);
-  }, []);
+    
+    return {
+      isConnected: false,
+      address: null,
+      chainId: null,
+    };
+  });
 
   // Persist wallet state to localStorage
   useEffect(() => {
-    if (!isInitialized) return;
+    if (typeof window === 'undefined') return;
     
     if (walletState.isConnected) {
       localStorage.setItem(WALLET_STORAGE_KEY, JSON.stringify(walletState));
     } else {
       localStorage.removeItem(WALLET_STORAGE_KEY);
     }
-  }, [walletState, isInitialized]);
+  }, [walletState]);
 
   const connect = useCallback(async () => {
     // Simulate wallet connection delay
